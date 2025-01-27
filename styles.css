@@ -1,0 +1,208 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff; /* 배경색을 하얀색으로 변경 */
+}
+
+header {
+    background-color: #333;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+
+main {
+    padding: 2rem; /* 패딩을 추가하여 겹치지 않도록 합니다 */
+    text-align: center; /* 소개란을 가운데 정렬로 변경합니다 */
+    background-color: #ffffff; /* 배경색을 하얀색으로 변경 */
+}
+
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+}
+
+section h2 {
+    color: #333;
+    margin-top: 2rem;
+}
+
+section ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+section ul li {
+    background-color: #ffffff; /* 배경색을 하얀색으로 변경 */
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    border-radius: 5px;
+}
+
+.org-chart {
+    margin-top: 2rem;
+    transform: scale(1.2); /* 크기를 키웁니다 */
+    transform-origin: center; /* 트리의 중앙을 기준으로 크기를 조정합니다 */
+    display: flex;
+    justify-content: center;
+    overflow-x: auto; /* 가로 스크롤을 추가합니다 */
+}
+
+.org-chart ul {
+    padding-top: 20px;
+    position: relative;
+    transition: all 0.5s;
+}
+
+.org-chart li {
+    float: left;
+    text-align: center;
+    list-style-type: none;
+    position: relative;
+    padding: 20px 5px 0 5px;
+    transition: all 0.5s;
+    width: auto; /* 가로 크기를 자동으로 조정합니다 */
+}
+
+.org-chart li::before, .org-chart li::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 50%;
+    border-top: 2px solid #007bff; /* 파란색으로 변경 */
+    width: 50%;
+    height: 20px;
+}
+
+.org-chart li::after {
+    right: auto;
+    left: 50%;
+    border-left: 2px solid #007bff; /* 파란색으로 변경 */
+}
+
+.org-chart li:only-child::after, .org-chart li:only-child::before {
+    display: none;
+}
+
+.org-chart li:only-child {
+    padding-top: 0;
+}
+
+.org-chart li:first-child::before, .org-chart li:last-child::after {
+    border: 0 none;
+}
+
+.org-chart li:last-child::before {
+    border-right: 2px solid #007bff; /* 파란색으로 변경 */
+    border-radius: 0 5px 0 0;
+}
+
+.org-chart li:first-child::after {
+    border-radius: 5px 0 0 0;
+}
+
+.org-chart ul ul::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    border-left: 2px solid #007bff; /* 파란색으로 변경 */
+    width: 0;
+    height: 20px;
+}
+
+.org-chart li span {
+    border: 2px solid #007bff; /* 파란색으로 변경 */
+    padding: 10px 20px; /* 패딩을 키웁니다 */
+    display: inline-block;
+    border-radius: 5px;
+    transition: all 0.5s;
+    font-size: 1.2rem; /* 글자 크기를 키웁니다 */
+    background-color: transparent; /* 배경색을 투명으로 변경 */
+    color: #007bff; /* 글자색을 파란색으로 변경 */
+}
+
+.org-chart li span:hover {
+    background: #ff4d4d; /* 빨간색으로 변경 */
+    border: 2px solid #ff4d4d; /* 빨간색으로 변경 */
+    color: white; /* 글자색을 흰색으로 변경 */
+}
+
+/* 직원 이름을 굵은 글씨로 변경 */
+.org-chart li div {
+    font-weight: bold;
+}
+
+/* 직원 이름 입력 폼 스타일 추가 */
+#employee-form {
+    font-size: 1.2rem; /* 폰트 크기를 키웁니다 */
+}
+
+#employee-form input[type="text"], #employee-form select, #employee-form input[type="file"] {
+    font-size: 1.2rem; /* 텍스트박스, 셀렉트 박스, 파일 선택 박스의 폰트 크기를 키웁니다 */
+    padding: 10px; /* 텍스트박스, 셀렉트 박스, 파일 선택 박스의 패딩을 키웁니다 */
+}
+
+#employee-form button {
+    font-size: 1.2rem; /* 버튼의 폰트 크기를 키웁니다 */
+    padding: 10px 20px; /* 버튼의 패딩을 키웁니다 */
+    background-color: #007bff; /* 버튼 배경색을 파란색으로 변경 */
+    color: white; /* 버튼 글자색을 흰색으로 변경 */
+    border: none; /* 버튼 테두리를 제거 */
+    border-radius: 5px; /* 버튼 모서리를 둥글게 */
+    cursor: pointer; /* 버튼에 커서 포인터 추가 */
+}
+
+#employee-form button:hover {
+    background-color: #0056b3; /* 버튼 호버 시 배경색을 어두운 파란색으로 변경 */
+}
+
+/* 소개 내용 스타일 추가 */
+section p {
+    font-size: 4rem; /* 글자 크기를 키웁니다 */
+    font-family: 'Segoe Script', cursive; /* 세련된 필체로 변경 */
+    color: #333; /* 글자색을 변경 */
+}
+
+/* 팝업 스타일 추가 */
+.popup {
+    display: none;
+    position: absolute; /* 위치를 절대 위치로 변경 */
+    z-index: 1;
+    width: 300px; /* 팝업 크기를 줄입니다 */
+    height: 400px; /* 팝업 크기를 줄입니다 */
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.popup-content {
+    background-color: #fefefe;
+    padding: 20px;
+    border: 1px solid #888;
+}
+
+.popup-close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.popup-close:hover,
+.popup-close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* 팝업 이미지 크기 조정 */
+.popup img {
+    width: 100%; /* 이미지 크기를 박스 크기와 동일하게 조정 */
+    height: 100%; /* 이미지 크기를 박스 크기와 동일하게 조정 */
+    object-fit: cover; /* 이미지가 박스 크기에 맞게 조정되도록 설정 */
+}

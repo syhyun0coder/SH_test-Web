@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로에스콤 안전팀</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>안전팀 휴무표</h1>
+    </header>
+    <nav>
+        <ul style="list-style: none; padding: 0; text-align: center; margin: 20px 0;">
+            <li style="display: inline; margin: 0 15px;"><a href="index.html">홈</a></li>
+            <li style="display: inline; margin: 0 15px;"><a href="schedule.html">휴무표</a></li>
+        </ul>
+    </nav>
+    <main>
+        <section style="text-align: center; margin: 50px 0;">
+            <h2 style="font-size: 4rem; font-family: 'Segoe Script', cursive;">휴무 캘린더</h2>
+            <div id="calendar-container" style="display: inline-block; text-align: left;">
+                <div style="text-align: center; margin-bottom: 10px; font-size: 1.5em; font-weight: bold;">
+                    <span id="calendar-year"></span>년 <span id="calendar-month"></span>월
+                </div>
+                <nav>
+                    <ul id="month-tabs" style="list-style: none; padding: 0; text-align: center; margin: 20px 0;">
+                        <!-- 탭이 동적으로 추가됩니다 -->
+                    </ul>
+                </nav>
+                <div style="text-align: right; margin-bottom: 20px;">
+                    <input type="number" id="year-input" min="2000" max="2100" placeholder="년도 입력" style="font-size: 1.2rem; padding: 10px;">
+                    <span style="font-size: 1.2rem;">년</span>
+                    <input type="number" id="month-input" min="1" max="12" placeholder="월 입력" style="font-size: 1.2rem; padding: 10px;">
+                    <span style="font-size: 1.2rem;">월</span>
+                    <button onclick="goToMonth()" style="font-size: 1.2rem; padding: 10px 20px;">이동</button>
+                </div>
+                <div style="text-align: right; margin-bottom: 20px;">
+                    <input type="text" id="search-input" placeholder="근무자 이름 검색" style="font-size: 1.2rem; padding: 10px;">
+                    <button onclick="searchEmployee()" style="font-size: 1.2rem; padding: 10px 20px;">검색</button>
+                </div>
+                <h3>주간 휴무자</h3>
+                <table id="day-calendar-table" style="width: 100%; border-collapse: collapse; text-align: center; margin-bottom: 20px; font-size: 1.2rem;">
+                    <thead>
+                        <tr>
+                            <th style="color: red;">일</th>
+                            <th>월</th>
+                            <th>화</th>
+                            <th>수</th>
+                            <th>목</th>
+                            <th>금</th>
+                            <th>토</th>
+                        </tr>
+                    </thead>
+                    <tbody id="day-calendar-body">
+                    </tbody>
+                </table>
+                <h3>야간 휴무자</h3>
+                <table id="night-calendar-table" style="width: 100%; border-collapse: collapse; text-align: center; font-size: 1.2rem;">
+                    <thead>
+                        <tr>
+                            <th style="color: red;">일</th>
+                            <th>월</th>
+                            <th>화</th>
+                            <th>수</th>
+                            <th>목</th>
+                            <th>금</th>
+                            <th>토</th>
+                        </tr>
+                    </thead>
+                    <tbody id="night-calendar-body">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2025 안전팀</p>
+    </footer>
+    <div id="popup" class="popup">
+        <span class="popup-close">&times;</span>
+        <img id="popup-img" src="" alt="직원 사진">
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('안전팀 웹페이지가 로드되었습니다.');
+
+            const today = new Date();
+            const currentYear = today.getFullYear();
+            const currentMonth = today.getMonth() + 1;
+
+            document.getElementById('calendar-year').innerText = currentYear;
+            document.getElementById('calendar-month').innerText = currentMonth;
+
+            updateMonthTabs(currentYear, currentMonth);
+            changeMonth(currentYear, currentMonth);
+
+            document.getElementById('year-input').addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    goToMonth();
+                }
+            });
+
+            document.getElementById('month-input').addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    goToMonth();
+                }
+            });
+
+            document.getElementById('search-input').addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    searchEmployee();
+                }
+            });
+
+            document.getElementById('search-input').addEventListener('input', function(event) {
+                if (event.target.value.trim() === '') {
+                    clearSearchHighlights();
+                }
+            });
+
+            document.querySelectorAll('#day-calendar-table input, #night-calendar-table input').forEach(input => {
+                input.addEventListener('input', saveCalendarData);
+                input.addEventListener('keypress', function(event) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        const nextInput = getNextInput(input);
+                        if (nextInput) {
+                            nextInput.focus();
+                        } else {
+                            saveCalendarData();
+                        }
+                    }
+                });
+            });
+
+            document.querySelectorAll('#day-calendar-table button, #night-calendar-table button').forEach(button => {
+                button.addEventListener('click', (event) => editDay(button, event));
+            });
+        });
+
+        function getNextInput(currentInput) {
+            const inputs = Array.from(document.querySelectorAll('#day-calendar-table input, #night-calendar-table input'));
+            const currentIndex = inputs.indexOf(currentInput);
+            return inputs[currentIndex + 1] || null;
+        }
+
+        function updateMonthTabs(currentYear, currentMonth) {
+            const monthTabs = document.getElementById('month-tabs');
+            monthTabs.innerHTML = '';
+
+            const prevMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+            const nextMonth = currentMonth === 12 ? 1 : currentMonth + 1;
+            const prevYear = currentMonth === 1 ? currentYear - 1 : currentYear;
+            const nextYear = currentMonth === 12 ? currentYear + 1 : currentYear;
+
+            const months = [
+                { year: prevYear, month: prevMonth, label: `${prevYear}년 ${prevMonth}월` },
+                { year: currentYear, month: currentMonth, label: `${currentYear}년 ${currentMonth}월` },
+                { year: nextYear, month: nextMonth, label: `${nextYear}년 ${nextMonth}월` }
+            ];
+
+            months.forEach(({ year, month, label }) => {
+                const li = document.createElement('li');
+                li.style.display = 'inline';
+                li.style.margin = '0 15px';
+                li.innerHTML = `<a href="#" onclick="changeMonth(${year}, ${month})">${label}</a>`;
+                monthTabs.appendChild(li);
+            });
+        }
+
+        function changeMonth(year, month) {
+            const monthNames = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
+            document.getElementById('calendar-year').innerText = year;
+            document.getElementById('calendar-month').innerText = monthNames[month - 1];
+
+            const dayCalendarData = JSON.parse(localStorage.getItem(`day-calendar-${year}-${month}`)) || {};
+            const nightCalendarData = JSON.parse(localStorage.getItem(`night-calendar-${year}-${month}`)) || {};
+
+            document.getElementById('day-calendar-body').innerHTML = generateDayCalendar(year, month, dayCalendarData);
+            document.getElementById('night-calendar-body').innerHTML = generateNightCalendar(year, month, nightCalendarData);
+
+            document.querySelectorAll('#day-calendar-table input, #night-calendar-table input').forEach(input => {
+                input.addEventListener('input', saveCalendarData);
+                input.addEventListener('keypress', function(event) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        const nextInput = getNextInput(input);
+                        if (nextInput) {
+                            nextInput.focus();
+                        } else {
+                            saveCalendarData();
+                        }
+                    }
+                });
+            });
+
+            document.querySelectorAll('#day-calendar-table button, #night-calendar-table button').forEach(button => {
+                button.addEventListener('click', (event) => editDay(button, event));
+            });
+        }
+
+        function generateDayCalendar(year, month, savedData) {
+            const daysInMonth = new Date(year, month, 0).getDate();
+            let calendarHtml = '';
+            let day = 1;
+
+            for (let i = 0; i < 6; i++) {
+                calendarHtml += '<tr>';
+                for (let j = 0; j < 7; j++) {
+                    if (i === 0 && j < new Date(year, month - 1, 1).getDay()) {
+                        calendarHtml += '<td></td>';
+                    } else if (day > daysInMonth) {
+                        calendarHtml += '<td></td>';
+                    } else {
+                        const dayData = savedData[day] || { text: day, color: j === 0 ? 'red' : 'black', employees: ['', '', '', '', '', ''] };
+                        calendarHtml += `<td>
+                                            <button style="width: 100%; color: ${j === 0 ? 'red' : dayData.color}; font-size: 1.2rem;" onclick="editDay(this, event)">${dayData.text}</button>
+                                            <div><input type="text" placeholder="주간 근무자" value="${dayData.employees[0]}" style="font-size: 1.2rem;"></div>
+                                            <div><input type="text" placeholder="주간 근무자" value="${dayData.employees[1]}" style="font-size: 1.2rem;"></div>
+                                            <div><input type="text" placeholder="주간 근무자" value="${dayData.employees[2]}" style="font-size: 1.2rem;"></div>
+                                            <div><input type="text" placeholder="주간 근무자" value="${dayData.employees[3]}" style="font-size: 1.2rem;"></div>
+                                            <div><input type="text" placeholder="주간 근무자" value="${dayData.employees[4]}" style="font-size: 1.2rem;"></div>
+                                            <div><input type="text" placeholder="주간 근무자" value="${dayData.employees[5]}" style="font-size: 1.2rem;"></div>
+                                         </td>`;
+                        day++;
+                    }
+                }
+                calendarHtml += '</tr>';
+            }
+            return calendarHtml;
+        }
+
+        function generateNightCalendar(year, month, savedData) {
+            const daysInMonth = new Date(year, month, 0).getDate();
+            let calendarHtml = '';
+            let day = 1;
+
+            for (let i = 0; i < 6; i++) {
+                calendarHtml += '<tr>';
+                for (let j = 0; j < 7; j++) {
+                    if (i === 0 && j < new Date(year, month - 1, 1).getDay()) {
+                        calendarHtml += '<td></td>';
+                    } else if (day > daysInMonth) {
+                        calendarHtml += '<td></td>';
+                    } else {
+                        const dayData = savedData[day] || { text: day, color: j === 0 ? 'red' : 'black', employees: ['', '', '', ''] };
+                        calendarHtml += `<td>
+                                            <button style="width: 100%; color: ${j === 0 ? 'red' : dayData.color}; font-size: 1.2rem;" onclick="editDay(this, event)">${dayData.text}</button>
+                                            <div><input type="text" placeholder="야간 근무자" value="${dayData.employees[0]}" style="font-size: 1.2rem;"></div>
+                                            <div><input type="text" placeholder="야간 근무자" value="${dayData.employees[1]}" style="font-size: 1.2rem;"></div>
+                                            <div><input type="text" placeholder="야간 근무자" value="${dayData.employees[2]}" style="font-size: 1.2rem;"></div>
+                                            <div><input type="text" placeholder="야간 근무자" value="${dayData.employees[3]}" style="font-size: 1.2rem;"></div>
+                                         </td>`;
+                        day++;
+                    }
+                }
+                calendarHtml += '</tr>';
+            }
+            return calendarHtml;
+        }
+
+        function editDay(button, event) {
+            const existingForm = document.querySelector('.edit-form');
+            if (existingForm) {
+                existingForm.remove();
+            }
+            const day = button.textContent;
+            const color = button.style.color;
+            const editForm = document.createElement('div');
+            editForm.className = 'edit-form';
+            editForm.style.position = 'fixed';
+            editForm.style.zIndex = '1000';
+            editForm.style.backgroundColor = 'white';
+            editForm.style.border = '1px solid #ccc';
+            editForm.style.padding = '10px';
+            editForm.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.1)';
+            editForm.style.width = '200px';
+            editForm.style.height = '200px';
+            editForm.style.display = 'flex';
+            editForm.style.flexDirection = 'column';
+            editForm.style.justifyContent = 'center';
+            editForm.style.alignItems = 'center';
+            editForm.innerHTML = `
+                <div style="display: flex; justify-content: space-around; width: 100%; margin-bottom: 10px;">
+                    <label style="display: flex; align-items: center;">
+                        <input type="radio" name="color" value="black" ${color === 'black' ? 'checked' : ''} style="display: none;">
+                        <div class="color-box" style="width: 30px; height: 30px; background-color: black; border: 1px solid #ccc; margin-right: 5px;"></div>
+                    </label>
+                    <label style="display: flex; align-items: center;">
+                        <input type="radio" name="color" value="blue" ${color === 'blue' ? 'checked' : ''} style="display: none;">
+                        <div class="color-box" style="width: 30px; height: 30px; background-color: blue; border: 1px solid #ccc; margin-right: 5px;"></div>
+                    </label>
+                    <label style="display: flex; align-items: center;">
+                        <input type="radio" name="color" value="red" ${color === 'red' ? 'checked' : ''} style="display: none;">
+                        <div class="color-box" style="width: 30px; height: 30px; background-color: red; border: 1px solid #ccc; margin-right: 5px;"></div>
+                    </label>
+                </div>
+                <input type="text" value="${day}" style="width: 100%; text-align: center; margin-top: 10px;">
+                <button type="button" onclick="saveEdit(this, '${day}')" style="margin-top: 10px;">저장</button>
+            `;
+            document.body.appendChild(editForm);
+            const rect = button.getBoundingClientRect();
+            const editFormHeight = editForm.offsetHeight;
+            const editFormWidth = editForm.offsetWidth;
+            const topPosition = Math.min(rect.top - editFormHeight, window.innerHeight - editFormHeight - 10);
+            const leftPosition = Math.min(rect.left + (rect.width / 2) - (editFormWidth / 2), window.innerWidth - editFormWidth - 10);
+
+            editForm.style.left = `${leftPosition}px`;
+            editForm.style.top = `${topPosition}px`;
+
+            const textBox = editForm.querySelector('input[type="text"]');
+            textBox.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    saveEdit(button, day);
+                }
+            });
+
+            document.querySelectorAll('.color-box').forEach(box => {
+                box.addEventListener('click', function() {
+                    document.querySelectorAll('.color-box').forEach(b => b.style.boxShadow = 'none');
+                    box.style.boxShadow = '0 0 10px 2px rgba(0, 0, 0, 0.5)';
+                    box.previousElementSibling.checked = true;
+                });
+            });
+
+            document.addEventListener('click', function(event) {
+                if (!editForm.contains(event.target) && event.target !== button) {
+                    editForm.remove();
+                }
+            });
+        }
+
+        function saveEdit(button, originalDay) {
+            const editForm = button.parentElement;
+            const newColor = editForm.querySelector('input[name="color"]:checked').value;
+            const newText = editForm.querySelector('input[type="text"]').value;
+            const dayButtons = document.querySelectorAll('button');
+            const year = document.getElementById('calendar-year').textContent;
+            const month = document.getElementById('calendar-month').textContent;
+            const dayData = JSON.parse(localStorage.getItem(`day-calendar-${year}-${month}`)) || {};
+            const nightData = JSON.parse(localStorage.getItem(`night-calendar-${year}-${month}`)) || {};
+
+            dayButtons.forEach(btn => {
+                if (btn.textContent === originalDay) {
+                    btn.textContent = newText;
+                    btn.style.color = newColor;
+                }
+            });
+
+            const day = parseInt(originalDay, 10);
+            if (dayData[day]) {
+                dayData[day].text = newText;
+                dayData[day].color = newColor;
+            }
+            if (nightData[day]) {
+                nightData[day].text = newText;
+                nightData[day].color = newColor;
+            }
+
+            localStorage.setItem(`day-calendar-${year}-${month}`, JSON.stringify(dayData));
+            localStorage.setItem(`night-calendar-${year}-${month}`, JSON.stringify(nightData));
+
+            editForm.remove();
+        }
+
+        function saveCalendarData() {
+            const year = document.getElementById('calendar-year').textContent;
+            const month = document.getElementById('calendar-month').textContent;
+            const dayCalendarData = {};
+            const nightCalendarData = {};
+
+            document.querySelectorAll('#day-calendar-table td').forEach((td, index) => {
+                const day = index + 1;
+                const button = td.querySelector('button');
+                const inputs = td.querySelectorAll('input');
+                if (button && inputs.length > 0) {
+                    dayCalendarData[day] = {
+                        text: button.textContent,
+                        color: button.style.color,
+                        employees: Array.from(inputs).map(input => input.value)
+                    };
+                }
+            });
+
+            document.querySelectorAll('#night-calendar-table td').forEach((td, index) => {
+                const day = index + 1;
+                const button = td.querySelector('button');
+                const inputs = td.querySelectorAll('input');
+                if (button && inputs.length > 0) {
+                    nightCalendarData[day] = {
+                        text: button.textContent,
+                        color: button.style.color,
+                        employees: Array.from(inputs).map(input => input.value)
+                    };
+                }
+            });
+
+            localStorage.setItem(`day-calendar-${year}-${month}`, JSON.stringify(dayCalendarData));
+            localStorage.setItem(`night-calendar-${year}-${month}`, JSON.stringify(nightCalendarData));
+        }
+
+        function goToMonth() {
+            const year = parseInt(document.getElementById('year-input').value, 10);
+            const month = parseInt(document.getElementById('month-input').value, 10);
+            if (!isNaN(year) && !isNaN(month) && month >= 1 && month <= 12) {
+                changeMonth(year, month);
+            } else {
+                alert('유효한 년도와 월을 입력하세요.');
+            }
+        }
+
+        function searchEmployee() {
+            const searchInput = document.getElementById('search-input').value.trim().toLowerCase();
+            if (searchInput === '') {
+                clearSearchHighlights();
+                return;
+            }
+
+            document.querySelectorAll('#day-calendar-table input, #night-calendar-table input').forEach(input => {
+                if (input.value.trim().toLowerCase().includes(searchInput)) {
+                    input.style.backgroundColor = 'yellow';
+                } else {
+                    input.style.backgroundColor = '';
+                }
+            });
+        }
+
+        function clearSearchHighlights() {
+            document.querySelectorAll('#day-calendar-table input, #night-calendar-table input').forEach(input => {
+                input.style.backgroundColor = '';
+            });
+        }
+    </script>
+</body>
+</html>

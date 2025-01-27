@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로에스콤 안전팀</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>노원 롯데백화점 안전팀</h1>
+    </header>
+    <nav>
+        <ul style="list-style: none; padding: 0; text-align: center; margin: 20px 0;">
+            <li style="display: inline; margin: 0 15px;"><a href="index.html">홈</a></li>
+            <li style="display: inline; margin: 0 15px;"><a href="schedule.html">휴무표</a></li>
+        </ul>
+    </nav>
+    <main>
+        <section>
+            <h2 style="font-size: 4rem; font-family: 'Segoe Script', cursive;">작은일도 정성스럽게</h2>
+        </section>
+        <section style="text-align: center; margin: 50px 0;">
+            <h2>조직도</h2>
+            <div class="org-chart" style="display: inline-block; text-align: left;">
+                <ul>
+                    <li>
+                        <span>총괄 소장</span>
+                        <ul>
+                            <li>
+                                <span>주간 부소장</span>
+                                <ul>
+                                    <li>
+                                        <span>주간 주임</span>
+                                        <ul>
+                                            <li>
+                                                <table style="width: 100%; border-collapse: collapse;">
+                                                    <tr>
+                                                        <td><span>주간 근무자 1</span></td>
+                                                        <td><span>주간 근무자 2</span></td>
+                                                        <td><span>주간 근무자 3</span></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><span>주간 근무자 4</span></td>
+                                                        <td><span>주간 근무자 5</span></td>
+                                                        <td><span>주간 근무자 6</span></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><span>주간 근무자 7</span></td>
+                                                        <td><span>주간 근무자 8</span></td>
+                                                        <td><span>주간 근무자 9</span></td>
+                                                    </tr>
+                                                </table>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <span>야간 부소장</span>
+                                <ul>
+                                    <li>
+                                        <span>야간 주임</span>
+                                        <ul>
+                                            <li>
+                                                <table style="width: 100%; border-collapse: collapse;">
+                                                    <tr>
+                                                        <td><span>야간 근무자 1</span></td>
+                                                        <td><span>야간 근무자 2</span></td>
+                                                        <td><span>야간 근무자 3</span></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><span>야간 근무자 4</span></td>
+                                                        <td><span>야간 근무자 5</span></td>
+                                                        <td><span>야간 근무자 6</span></td>
+                                                    </tr>
+                                                </table>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li><span>총무</span></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </section>
+        <section style="text-align: center; margin: 50px 0;">
+            <h2>직원 정보 입력</h2>
+            <form id="employee-form">
+                <label for="position">직책:</label>
+                <select id="position">
+                    <option value="총괄 소장">총괄 소장</option>
+                    <option value="주간 부소장">주간 부소장</option>
+                    <option value="야간 부소장">야간 부소장</option>
+                    <option value="총무">총무</option>
+                    <option value="주간 주임">주간 주임</option>
+                    <option value="야간 주임">야간 주임</option>
+                    <option value="주간 근무자 1">주간 근무자 1</option>
+                    <option value="주간 근무자 2">주간 근무자 2</option>
+                    <option value="주간 근무자 3">주간 근무자 3</option>
+                    <option value="주간 근무자 4">주간 근무자 4</option>
+                    <option value="주간 근무자 5">주간 근무자 5</option>
+                    <option value="주간 근무자 6">주간 근무자 6</option>
+                    <option value="주간 근무자 7">주간 근무자 7</option>
+                    <option value="주간 근무자 8">주간 근무자 8</option>
+                    <option value="주간 근무자 9">주간 근무자 9</option>
+                    <option value="야간 근무자 1">야간 근무자 1</option>
+                    <option value="야간 근무자 2">야간 근무자 2</option>
+                    <option value="야간 근무자 3">야간 근무자 3</option>
+                    <option value="야간 근무자 4">야간 근무자 4</option>
+                    <option value="야간 근무자 5">야간 근무자 5</option>
+                    <option value="야간 근무자 6">야간 근무자 6</option>
+                </select>
+                <label for="name">이름:</label>
+                <input type="text" id="name" required>
+                <label for="photo">사진:</label>
+                <input type="file" id="photo" accept="image/*">
+                <button type="submit">수정</button>
+            </form>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2025 안전팀</p>
+    </footer>
+    <div id="popup" class="popup">
+        <span class="popup-close">&times;</span>
+        <img id="popup-img" src="" alt="직원 사진">
+    </div>
+    <script src="scripts.js"></script>
+</body>
+</html>
